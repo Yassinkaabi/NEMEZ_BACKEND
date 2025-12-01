@@ -17,7 +17,7 @@ export interface IProduct extends Document {
     sizes: string[];
     colors: string[];
     variants: IProductVariant[];
-    stock: number; // Virtual field - total stock
+    stock: number;
     createdAt: Date;
 }
 

@@ -62,6 +62,31 @@ export const getProductById = async (req: Request, res: Response) => {
     }
 };
 
+export const getProductByName = async (req: Request, res: Response) => {
+    try {
+        const nameParam = decodeURIComponent(req.params.name);
+        const escapedName = nameParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const product = await Product.findOne({ name: { $regex: `^${escapedName}$`, $options: 'i' } }).populate('categoryId', 'name');
+        if (!product) {
+            return res.status(404).json({ message: 'Produit introuvable' });
+        }
+        const reviews = await Review.find({ productId: product._id });
+        const averageRating = reviews.length > 0
+            ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+            : 0;
+        res.status(200).json({
+            product,
+            reviewStats: {
+                averageRating: Math.round(averageRating * 10) / 10,
+                totalReviews: reviews.length
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur serveur', error });
+    }
+};
+
+
 export const createProduct = async (req: Request, res: Response) => {
     try {
         const product = await Product.create(req.body);
