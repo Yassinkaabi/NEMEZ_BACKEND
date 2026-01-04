@@ -45,12 +45,8 @@ export const initAdvertisementScheduler = () => {
     });
 
     // Vérifier et envoyer les emails toutes les heures
-    cron.schedule('* * * * *', async () => {
+    cron.schedule('0 * * * *', async () => {
         console.log('📧 Vérification des emails à envoyer...');
         await autoSendOnActivation();
     });
-
-    console.log('📅 Planificateur de publicités initialisé');
-    console.log('   - Mise à jour des statuts: toutes les 5 minutes');
-    console.log('   - Envoi des emails: toutes les heures');
 };
