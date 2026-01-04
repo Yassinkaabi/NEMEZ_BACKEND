@@ -10,6 +10,7 @@ import reviewRoutes from './routes/reviewRoutes';
 import adminRoutes from './routes/adminRoutes';
 import advertisementRoutes from './routes/advertisementRoutes';
 import newsletterRoutes from './routes/newsletterRoutes';
+import uploadRoutes from './routes/uploadRoutes';
 import { errorHandler } from './middlewares/errorHandler';
 import { initAdvertisementScheduler } from './utils/advertisementScheduler';
 
@@ -37,6 +38,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/advertisements', advertisementRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
