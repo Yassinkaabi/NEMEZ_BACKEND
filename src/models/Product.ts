@@ -7,6 +7,13 @@ export interface IProductVariant {
     stock: number;
 }
 
+export interface IColorOption {
+    name: string;
+    value: string;
+    hex: string;
+    images: string[];
+}
+
 export interface IProduct extends Document {
     productId: number;
     name: string;
@@ -15,7 +22,7 @@ export interface IProduct extends Document {
     categoryId: mongoose.Types.ObjectId;
     images: string[];
     sizes: string[];
-    colors: string[];
+    colors: IColorOption[];
     variants: IProductVariant[];
     stock: number;
     createdAt: Date;
@@ -27,6 +34,13 @@ const productVariantSchema = new Schema({
     stock: { type: Number, required: true, default: 0 }
 }, { _id: false });
 
+const colorOptionSchema = new Schema({
+    name: { type: String, required: true },
+    value: { type: String, required: true },
+    hex: { type: String, required: true },
+    images: [{ type: String }]
+}, { _id: false });
+
 const productSchema = new Schema<IProduct>({
     productId: { type: Number, unique: true },
     name: { type: String, required: true },
@@ -35,7 +49,7 @@ const productSchema = new Schema<IProduct>({
     categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     images: [{ type: String }],
     sizes: [{ type: String }],
-    colors: [{ type: String }],
+    colors: [colorOptionSchema],
     variants: [productVariantSchema],
     createdAt: { type: Date, default: Date.now },
 }, {
@@ -43,7 +57,7 @@ const productSchema = new Schema<IProduct>({
     toObject: { virtuals: true }
 });
 
-// Virtual field for total stock (sum of all variants)
+// Virtual field for total stock
 productSchema.virtual('stock').get(function () {
     if (this.variants && this.variants.length > 0) {
         return this.variants.reduce((total, variant) => total + variant.stock, 0);
@@ -71,4 +85,3 @@ productSchema.pre<IProduct>('save', async function (next) {
 });
 
 export default mongoose.model<IProduct>('Product', productSchema);
-
