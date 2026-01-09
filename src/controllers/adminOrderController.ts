@@ -129,7 +129,7 @@ export const getOrderStats = async (req: any, res: Response) => {
         const deliveredOrders = await Order.countDocuments({ status: 'delivered' });
 
         // Calculate total revenue
-        const orders = await Order.find({ status: { $in: ['confirmed', 'delivered'] } });
+        const orders = await Order.find({ status: { $in: ['delivered'] } });
         const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
 
         // Get orders this month
@@ -145,7 +145,7 @@ export const getOrderStats = async (req: any, res: Response) => {
             {
                 $match: {
                     createdAt: { $gte: startOfMonth },
-                    status: { $in: ['confirmed', 'delivered'] }
+                    status: { $in: ['delivered'] }
                 }
             },
             {
@@ -164,7 +164,7 @@ export const getOrderStats = async (req: any, res: Response) => {
             {
                 $match: {
                     createdAt: { $gte: last7Days },
-                    status: { $in: ['confirmed', 'delivered'] }
+                    status: { $in: ['delivered'] }
                 }
             },
             {

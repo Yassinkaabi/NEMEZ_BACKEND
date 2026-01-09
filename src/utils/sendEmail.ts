@@ -11,7 +11,7 @@ export const transporter = nodemailer.createTransport({
 });
 
 // Template de base pour tous les emails
-const getEmailTemplate = (content: string) => `
+const getEmailTemplate = (content: string) => ` 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -513,7 +513,7 @@ const getOrderConfirmedTemplate = (order: any, userEmail: string) => {
                         <span style="color: #28a745; font-size: 20px; font-weight: 700;">${order.totalAmount} DT</span>
                     </td>
                 </tr>
-            </table>
+            </table>    
         </div>
 
         <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 25px;">
