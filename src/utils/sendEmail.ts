@@ -682,9 +682,8 @@ const getVerificationEmailTemplate = (verificationToken: string) => {
 
     return getEmailTemplate(`
         <div style="text-align: center; margin-bottom: 30px;">
-            <div style="display: inline-block; background: #ffffff; border-radius: 50%; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                <img src="cid:logo" alt="NEMEZ" style="width: 120px; height: 120px; border-radius: 50%; display: block;">
-            </div>
+            <h1 style="color: #222222; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 1px;"> NEMEZ </h1>
+            <div style="height: 2px; width: 40px; background: #222222; margin: 15px auto;"></div>
             <h2 style="color: #212529; margin: 0 0 10px 0; font-size: 28px; font-weight: 700;">
                 Vérifiez votre email
             </h2>
@@ -720,20 +719,11 @@ const getVerificationEmailTemplate = (verificationToken: string) => {
 
 export const sendVerificationEmail = async (userEmail: string, token: string) => {
     try {
-        const logoPath = path.join(__dirname, '../../public/images/logo.jpeg');
-
         await transporter.sendMail({
             from: `"NEMEZ Shop" <${process.env.SMTP_USER}>`,
             to: userEmail,
-            subject: `📧 Action requise : Confirmez votre adresse email - NEMEZ`,
-            html: getVerificationEmailTemplate(token),
-            attachments: [
-                {
-                    filename: 'logo.jpeg',
-                    path: logoPath,
-                    cid: 'logo'
-                }
-            ]
+            subject: `Bienvenue chez NEMEZ Shop - Activation de votre compte`,
+            html: getVerificationEmailTemplate(token)
         });
         console.log(`✅ Email de vérification envoyé à ${userEmail}`);
     } catch (error) {
