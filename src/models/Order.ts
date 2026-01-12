@@ -11,11 +11,12 @@ interface OrderItem {
 
 export interface IOrder extends Document {
     orderId: number;
-    userId: mongoose.Types.ObjectId;
+    userId?: mongoose.Types.ObjectId;
     items: OrderItem[];
     address: string;
     phone: string;
-    email: string;
+    email?: string;
+    name: string;
     totalAmount: number;
     status: 'pending' | 'confirmed' | 'delivered';
     createdAt: Date;
@@ -23,7 +24,7 @@ export interface IOrder extends Document {
 
 const orderSchema = new Schema<IOrder>({
     orderId: { type: Number, unique: true },
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     items: [{
         productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
         quantity: { type: Number, required: true },
@@ -33,7 +34,8 @@ const orderSchema = new Schema<IOrder>({
     }],
     address: { type: String, required: true },
     phone: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: false },
+    name: { type: String, required: true },
     totalAmount: { type: Number, required: true },
     status: { type: String, enum: ['pending', 'confirmed', 'delivered'], default: 'pending' },
     createdAt: { type: Date, default: Date.now }

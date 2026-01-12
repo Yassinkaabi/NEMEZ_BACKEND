@@ -4,7 +4,7 @@ import { authenticate, isAdmin } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
-router.post('/', authenticate, createOrder);
+router.post('/', createOrder);
 router.get('/my-orders', authenticate, getUserOrders);
 router.put('/:id/status', authenticate, isAdmin, updateOrderStatus);
 

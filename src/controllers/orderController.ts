@@ -5,7 +5,7 @@ import { sendOrderConfirmationEmail } from '../utils/sendEmail';
 
 export const createOrder = async (req: any, res: Response) => {
     try {
-        const { items, address, phone, email } = req.body;
+        const { items, address, phone, email, name } = req.body;
         const userId = req.user?.userId;
 
         // Validate stock for each variant before creating order
@@ -62,6 +62,7 @@ export const createOrder = async (req: any, res: Response) => {
             address,
             phone,
             email,
+            name,
             totalAmount,
             status: 'pending'
         });
@@ -73,7 +74,7 @@ export const createOrder = async (req: any, res: Response) => {
         });
 
         // Envoyer email de confirmation avec les données populées
-        if (populatedOrder) {
+        if (populatedOrder && email) {
             await sendOrderConfirmationEmail(email, populatedOrder);
         }
 
