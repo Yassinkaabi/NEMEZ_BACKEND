@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import User from '../models/User';
+import { sendVerificationEmail } from '../utils/sendEmail';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret';
@@ -14,16 +16,21 @@ export const signup = async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Email déjà utilisé' });
         }
 
-        const user = await User.create({ name, email, password, phone, address });
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const user = await User.create({
+            name,
+            email,
+            password,
+            phone,
+            address,
+            verificationToken
+        });
 
-        const accessToken = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: '15m' });
-        const refreshToken = jwt.sign({ userId: user._id }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
+        await sendVerificationEmail(user.email, verificationToken);
 
         res.status(201).json({
-            message: 'Inscription réussie',
-            user: { id: user._id, name: user.name, email: user.email, role: user.role },
-            accessToken,
-            refreshToken
+            message: 'Inscription réussie. Veuillez vérifier votre email pour activer votre compte.',
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, isVerified: user.isVerified }
         });
     } catch (error) {
         res.status(500).json({ message: 'Erreur serveur', error });
@@ -37,6 +44,13 @@ export const login = async (req: Request, res: Response) => {
         const user = await User.findOne({ email });
         if (!user || !(await user.comparePassword(password))) {
             return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+        }
+
+        if (!user.isVerified) {
+            return res.status(401).json({
+                message: 'Veuillez vérifier votre email avant de vous connecter.',
+                isUnverified: true
+            });
         }
 
         const accessToken = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: '15m' });
@@ -103,6 +117,25 @@ export const updateProfile = async (req: any, res: Response) => {
         }
 
         res.status(200).json({ message: 'Profil mis à jour', user });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur serveur', error });
+    }
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+    try {
+        const { token } = req.params;
+
+        const user = await User.findOne({ verificationToken: token });
+        if (!user) {
+            return res.status(400).json({ message: 'Token de vérification invalide ou expiré' });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        await user.save();
+
+        res.status(200).json({ message: 'Email vérifié avec succès. Vous pouvez maintenant vous connecter.' });
     } catch (error) {
         res.status(500).json({ message: 'Erreur serveur', error });
     }

@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import path from 'path';
 
 export const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -22,7 +23,7 @@ const getEmailTemplate = (content: string) => `
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
     <table role="presentation" style="width: 100%; border-collapse: collapse;">
         <tr>
-            <td style="padding: 40px 0; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <td style="padding: 40px 0; text-align: center; background: #666666">
                 <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: bold; letter-spacing: 2px;">
                     NEMEZ
                 </h1>
@@ -138,7 +139,7 @@ const getOrderConfirmationTemplate = (order: any, userEmail: string) => {
 
     return getEmailTemplate(`
         <div style="text-align: center; margin-bottom: 30px;">
-            <div style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; padding: 20px; margin-bottom: 20px;">
+            <div style="display: inline-block; background: #666666; border-radius: 50%; padding: 20px; margin-bottom: 20px;">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -248,7 +249,7 @@ const getOrderConfirmationTemplate = (order: any, userEmail: string) => {
             <p style="margin: 0 0 15px 0; color: #6c757d; font-size: 14px;">
                 Des questions sur votre commande ?
             </p>
-            <a href="mailto:support@nemez.com" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 25px; font-weight: 600; font-size: 14px;">
+            <a href="mailto:support@nemez.com" style="display: inline-block; background: #222222; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 25px; font-weight: 600; font-size: 14px;">
                 Contactez-nous
             </a>
         </div>
@@ -401,7 +402,7 @@ const getAdminNotificationTemplate = (order: any, userEmail: string) => {
         </div>
 
         <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid #e9ecef;">
-            <a href="${process.env.ADMIN_PANEL_URL || '#'}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 25px; font-weight: 600; font-size: 14px;">
+            <a href="${process.env.ADMIN_PANEL_URL || '#'}" style="display: inline-block; background: #222222; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 25px; font-weight: 600; font-size: 14px;">
                 Voir dans le panneau admin
             </a>
         </div>
@@ -672,5 +673,71 @@ export const sendOrderStatusUpdateEmail = async (userEmail: string, order: any, 
     } catch (error) {
         console.error('❌ Erreur lors de l\'envoi de l\'email de statut:', error);
         // Ne pas throw l'erreur pour ne pas bloquer la mise à jour du statut
+    }
+};
+
+// Template pour la vérification de l'email
+const getVerificationEmailTemplate = (verificationToken: string) => {
+    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+
+    return getEmailTemplate(`
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="display: inline-block; background: #ffffff; border-radius: 50%; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <img src="cid:logo" alt="NEMEZ" style="width: 120px; height: 120px; border-radius: 50%; display: block;">
+            </div>
+            <h2 style="color: #212529; margin: 0 0 10px 0; font-size: 28px; font-weight: 700;">
+                Vérifiez votre email
+            </h2>
+            <p style="color: #6c757d; margin: 0; font-size: 16px;">
+                Bienvenue chez NEMEZ Shop !
+            </p>
+        </div>
+
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #667eea;">
+            <p style="margin: 0; color: #495057; font-size: 15px; line-height: 1.6;">
+                Merci de vous être inscrit sur NEMEZ Shop. Pour activer votre compte et commencer vos achats, veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous.
+            </p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="${verificationUrl}" style="display: inline-block; background: #222222; color: #ffffff; text-decoration: none; padding: 15px 35px; border-radius: 30px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                Confirmer mon email
+            </a>
+        </div>
+
+        <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
+            <p style="margin: 0; color: #6c757d; font-size: 13px; line-height: 1.6;">
+                Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :<br>
+                <a href="${verificationUrl}" style="color: #667eea; word-break: break-all;">${verificationUrl}</a>
+            </p>
+        </div>
+
+        <p style="margin: 30px 0 0 0; color: #495057; font-size: 14px; text-align: center;">
+            Ce lien expirera dans 24 heures.
+        </p>
+    `);
+};
+
+export const sendVerificationEmail = async (userEmail: string, token: string) => {
+    try {
+        const logoPath = path.join(__dirname, '../../public/images/logo.jpeg');
+
+        await transporter.sendMail({
+            from: `"NEMEZ Shop" <${process.env.SMTP_USER}>`,
+            to: userEmail,
+            subject: `📧 Action requise : Confirmez votre adresse email - NEMEZ`,
+            html: getVerificationEmailTemplate(token),
+            attachments: [
+                {
+                    filename: 'logo.jpeg',
+                    path: logoPath,
+                    cid: 'logo'
+                }
+            ]
+        });
+        console.log(`✅ Email de vérification envoyé à ${userEmail}`);
+    } catch (error) {
+        console.error('❌ Erreur lors de l\'envoi de l\'email de vérification:', error);
+        throw error;
     }
 };

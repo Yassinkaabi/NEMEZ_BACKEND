@@ -18,6 +18,8 @@ export interface IUser extends Document {
     address?: string;
     phone?: string;
     role: 'user' | 'admin';
+    isVerified: boolean;
+    verificationToken?: string;
     permissions?: IAdminPermissions;
     createdAt: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;
@@ -31,6 +33,8 @@ const userSchema = new Schema<IUser>({
     address: { type: String },
     phone: { type: String },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    isVerified: { type: Boolean, default: false },
+    verificationToken: { type: String },
     permissions: {
         canManageUsers: { type: Boolean, default: false },
         canManageProducts: { type: Boolean, default: false },
