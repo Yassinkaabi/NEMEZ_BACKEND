@@ -1,5 +1,6 @@
 import { Response } from 'express';
 import Order from '../models/Order';
+import Product from '../models/Product';
 
 export const getAllOrders = async (req: any, res: Response) => {
     try {
@@ -109,14 +110,33 @@ export const updateOrderStatus = async (req: any, res: Response) => {
 
 export const deleteOrder = async (req: any, res: Response) => {
     try {
-        const order = await Order.findByIdAndDelete(req.params.id);
+        const order = await Order.findById(req.params.id);
 
         if (!order) {
             return res.status(404).json({ message: 'Commande introuvable' });
         }
 
-        res.status(200).json({ message: 'Commande supprimée' });
+        if (order.status === 'pending') {
+            for (const item of order.items) {
+                const product = await Product.findById(item.productId);
+                if (product && product.variants) {
+                    const variantIndex = product.variants.findIndex(
+                        (v: any) => v.size === item.size && v.color === item.color
+                    );
+
+                    if (variantIndex !== -1) {
+                        product.variants[variantIndex].stock += item.quantity;
+                        await product.save();
+                    }
+                }
+            }
+        }
+
+        await Order.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({ message: 'Commande supprimée avec succès' });
     } catch (error) {
+        console.error('Erreur suppression commande:', error);
         res.status(500).json({ message: 'Erreur serveur', error });
     }
 };

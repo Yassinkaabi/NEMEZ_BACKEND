@@ -192,7 +192,7 @@ const getOrderConfirmationTemplate = (order: any, userEmail: string) => {
                         <span style="color: #6c757d; font-size: 14px;">Livraison</span>
                     </td>
                     <td style="text-align: right; padding: 8px 0;">
-                        <span style="color: #28a745; font-size: 14px; font-weight: 600;">Gratuite</span>
+                        <span style="color: #28a745; font-size: 14px; font-weight: 600;">8 DT</span>
                     </td>
                 </tr>
                 <tr style="border-top: 2px solid #dee2e6;">
