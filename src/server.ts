@@ -13,6 +13,7 @@ import newsletterRoutes from './routes/newsletterRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import { errorHandler } from './middlewares/errorHandler';
 import { initAdvertisementScheduler } from './utils/advertisementScheduler';
+import { handleProductSEO, handleCategorySEO } from './controllers/seoController';
 
 
 const app = express();
@@ -39,6 +40,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/advertisements', advertisementRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/upload', uploadRoutes);
+
+app.get('/api/seo/product/:slug', handleProductSEO);
+app.get('/api/seo/category/:id', handleCategorySEO);
 
 // Health check
 app.get('/health', (req, res) => {
