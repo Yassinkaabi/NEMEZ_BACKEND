@@ -67,17 +67,20 @@ export const handleProductSEO = async (req: Request, res: Response) => {
             'og:title': product.name,
             'og:description': product.description?.substring(0, 200) || '',
             'og:image': firstImage,
+            'og:image:alt': product.name,
             'og:url': url,
             'og:type': 'product',
             'product:price:amount': product.price.toString(),
             'product:price:currency': 'TND',
-            'product:availability': totalStock > 0 ? 'in stock' : 'out of stock'
+            'product:availability': totalStock > 0 ? 'in stock' : 'out of stock',
+            'og:updated_time': product.createdAt ? new Date(product.createdAt).toISOString() : new Date().toISOString(),
+            'fb:app_id': process.env.FB_APP_ID || ''
         };
 
         html = injectMetaTags(html, tags);
         res.setHeader('Content-Type', 'text/html');
         console.log(`[SEO Success] Injected tags for: ${product.name}`);
-        console.log(`[SEO Tags] og:title: ${tags['og:title']}, og:image: ${tags['og:image']},og:description: ${tags['og:description']},og:url: ${tags['og:url']}`);
+        console.log(`[SEO Tags] og:title: ${tags['og:title']}, og:image: ${tags['og:image']}, og:description: ${tags['og:description']}, og:url: ${tags['og:url']}, fb:app_id: ${tags['fb:app_id']}`);
         res.send(html);
     } catch (error) {
         console.error('SEO Injection Error:', error);
