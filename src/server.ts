@@ -14,7 +14,7 @@ import uploadRoutes from './routes/uploadRoutes';
 import { errorHandler } from './middlewares/errorHandler';
 import { initAdvertisementScheduler } from './utils/advertisementScheduler';
 import { handleProductSEO, handleCategorySEO } from './controllers/seoController';
-
+import { generateSitemap, generateRobots } from './controllers/sitemapController';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -43,6 +43,8 @@ app.use('/api/upload', uploadRoutes);
 
 app.get('/api/seo/product/:slug', handleProductSEO);
 app.get('/api/seo/category/:id', handleCategorySEO);
+app.get('/sitemap.xml', generateSitemap);
+app.get('/robots.txt', generateRobots);
 
 // Health check
 app.get('/health', (req, res) => {
