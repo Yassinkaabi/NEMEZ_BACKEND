@@ -30,15 +30,19 @@ const injectMetaTags = (html: string, tags: { [key: string]: string }) => {
 export const handleProductSEO = async (req: Request, res: Response) => {
     try {
         const { slug } = req.params;
-        const product = await Product.findOne({ name: slug }).populate('categoryId');
+        // Case-insensitive search to match slugs like "HOODIE" with "Hoodie"
+        const escapedSlug = slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const product = await Product.findOne({
+            name: { $regex: `^${escapedSlug}$`, $options: 'i' }
+        }).populate('categoryId');
 
         if (!product) {
+            console.log(`SEO: Product not found for slug: ${slug}`);
             return res.sendFile(path.join(__dirname, '../../../Frontend/dist/index.html'));
         }
 
         const frontendPath = process.env.FRONTEND_PATH || path.join(__dirname, '../../../Frontend');
         const indexPath = path.join(frontendPath, 'dist/index.html');
-        // If dist doesn't exist (dev mode), try the root index.html
         const finalIndexPath = fs.existsSync(indexPath)
             ? indexPath
             : path.join(frontendPath, 'index.html');
@@ -46,7 +50,15 @@ export const handleProductSEO = async (req: Request, res: Response) => {
         let html = fs.readFileSync(finalIndexPath, 'utf8');
 
         const totalStock = product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0;
-        const firstImage = product.images?.[0] || '';
+
+        // Ensure absolute image URL for Facebook
+        let firstImage = product.images?.[0] || '';
+        if (firstImage && !firstImage.startsWith('http')) {
+            const domain = process.env.DOMAIN || 'https://nemez.shop';
+            firstImage = `${domain.replace(/\/$/, '')}${firstImage.startsWith('/') ? '' : '/'}${firstImage}`;
+        }
+
+        const url = `${(process.env.DOMAIN || 'https://nemez.shop').replace(/\/$/, '')}/product/${slug}`;
 
         // Prepare tags
         const tags = {
@@ -55,6 +67,7 @@ export const handleProductSEO = async (req: Request, res: Response) => {
             'og:title': product.name,
             'og:description': product.description?.substring(0, 200) || '',
             'og:image': firstImage,
+            'og:url': url,
             'og:type': 'product',
             'product:price:amount': product.price.toString(),
             'product:price:currency': 'TND',
@@ -62,6 +75,7 @@ export const handleProductSEO = async (req: Request, res: Response) => {
         };
 
         html = injectMetaTags(html, tags);
+        res.setHeader('Content-Type', 'text/html');
         res.send(html);
     } catch (error) {
         console.error('SEO Injection Error:', error);
