@@ -76,6 +76,8 @@ export const handleProductSEO = async (req: Request, res: Response) => {
 
         html = injectMetaTags(html, tags);
         res.setHeader('Content-Type', 'text/html');
+        console.log(`[SEO Success] Injected tags for: ${product.name}`);
+        console.log(`[SEO Tags] og:title: ${tags['og:title']}, og:image: ${tags['og:image']},og:description: ${tags['og:description']},og:url: ${tags['og:url']}`);
         res.send(html);
     } catch (error) {
         console.error('SEO Injection Error:', error);
