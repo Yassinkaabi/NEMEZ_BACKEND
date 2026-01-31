@@ -55,12 +55,13 @@ export const getProductById = async (req: any, res: Response) => {
 
 export const createProduct = async (req: any, res: Response) => {
     try {
-        const { name, description, price, categoryId, images, sizes, colors, variants } = req.body;
+        const { name, description, price, old_price, categoryId, images, sizes, colors, variants } = req.body;
 
         const product = await Product.create({
             name,
             description,
             price,
+            old_price,
             categoryId,
             images,
             sizes,
@@ -76,11 +77,11 @@ export const createProduct = async (req: any, res: Response) => {
 
 export const updateProduct = async (req: any, res: Response) => {
     try {
-        const { name, description, price, categoryId, images, sizes, colors, variants } = req.body;
+        const { name, description, price, old_price, categoryId, images, sizes, colors, variants } = req.body;
 
         const product = await Product.findByIdAndUpdate(
             req.params.id,
-            { name, description, price, categoryId, images, sizes, colors, variants },
+            { name, description, price, old_price, categoryId, images, sizes, colors, variants },
             { new: true, runValidators: true }
         ).populate('categoryId', 'name');
 
